@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JQ小遊戲</title>
+    <style>
+        .area {
+            width: 450px;
+            height: 450px;
+            margin: auto;
+            text-align: center;
+        }
+
+        .box {
+            width: 200px;
+            height: 200;
+            background: gray;
+            display: inline-block;
+            margin-bottom: 20px;
+            animation-duration: 1s;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        img {
+            width: 200px;
+            height: 200px;
+        }
+
+        .lightskyblue {
+            background-color: lightskyblue;
+        }
+
+        .purple {
+            background-color: purple;
+        }
+
+        .yellow {
+            background-color: yellow;
+        }
+
+        .cadetblue {
+            background-color: cadetblue;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 id="nowLevel">第1關</h1>
+    <div class="area">
+        <div class="box" id="shark"><img src="./images/サメ.png"></div>
+        <div class="box" id="chick"><img src="./images/ニワトリ.png"></div>
+        <div class="box" id="cat"><img src="./images/靴下ネコ.png"></div>
+        <div class="box" id="bear"><img src="./images/座っているシロクマ.png"></div>
+    </div>
+    <div style="text-align: center; margin-bottom: 3rem;">
+        <input type="button" value="START" id="Start" style="font-size: 25px;">
+    </div>
+
+    <p>遊戲說明:玩家要根據所播放的題目，記憶播放的順序並答題，關卡越後面，所要記憶的題目長度越長，難度也越高。</p>
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js'></script>
+    <script>
+        let game = [];
+        let guess = [];
+        let gameState = false;
+        let level = 1
+
+        const nowLevel = document.getElementById('nowLevel')
+        function reset() {
+            game = [];
+            guess = [];
+            gameState = false;
+        }
+
+        function flash($box) {
+            if ($box.is('#shark')) {
+                $box.addClass('lightskyblue');
+            } else if ($box.is('#chick')) {
+                $box.addClass('purple');
+            } else if ($box.is('#cat')) {
+                $box.addClass('yellow');
+            } else if ($box.is('#bear')) {
+                $box.addClass('cadetblue');
+            }
+
+            setTimeout(() => {
+                $box.removeClass('lightskyblue purple yellow cadetblue');
+            }, 500);
+        }
+
+        function playgame() {
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i >= game.length) {
+                    clearInterval(interval);
+                    gameState = true;
+                    return;
+                }
+                const boxIndex = game[i];
+                const $box = $('.box').eq(boxIndex);
+                flash($box);
+                i++;
+            }, 800);
+        }
+
+        function checkPlayer() {
+            const currentInputIndex = guess.length - 1;
+
+            if (guess[currentInputIndex] !== game[currentInputIndex]) {
+                alert('失敗遊戲結束!');
+                reset();
+                return;
+            }
+
+            if (guess.length === game.length) {
+                gameState = false;
+                guess = [];
+                alert('答對!進入下一關');
+                nextLevel();
+                level++
+                $('h1').text(`第${level}關`)
+            }
+        }
+
+        function nextLevel() {
+            game.push(Math.floor(Math.random() * 4));
+            setTimeout(playgame, 1000);
+        }
+
+        $('#Start').on('click', function () {
+            reset();
+            nextLevel();
+        });
+
+        $('.box').on('click', function () {
+            if (!gameState) return;
+            const index = $('.box').index(this);
+            guess.push(index);
+            flash($(this));
+            checkPlayer();
+        });
+    </script>
+</body>
+
+</html>
